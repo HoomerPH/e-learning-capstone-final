@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 import { Separator } from "@/components/ui/separator";
 
 interface Unit {
@@ -27,94 +26,98 @@ interface Lesson {
   order: number;
 }
 
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  duration: string;
+  units: Unit[];
+}
+
 export default function EditCourse({ params }: { params: { courseId: string } }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [course, setCourse] = useState({
+  const [course, setCourse] = useState<Course>({
+    id: params.courseId,
     title: "",
     description: "",
     duration: "",
-    units: [] as Unit[]
+    units: []
   });
 
   useEffect(() => {
-    async function loadCourse() {
-      const { data, error } = await supabase
-        .from('courses')
-        .select(`
-          *,
-          units (
-            *,
-            lessons (*)
-          )
-        `)
-        .eq('id', params.courseId)
-        .single();
-
-      if (error) {
-        console.error('Error loading course:', error);
-        return;
-      }
-
-      if (data) {
-        setCourse({
-          title: data.title,
-          description: data.description,
-          duration: data.duration,
-          units: data.units || []
-        });
-      }
-    }
-
     loadCourse();
   }, [params.courseId]);
+
+  async function loadCourse() {
+    try {
+      // TODO: Replace with your database call
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
+
+      // Sample data
+      const sampleCourse = {
+        id: params.courseId,
+        title: "Introduction to Computer Systems",
+        description: "Learn the basics of computer systems",
+        duration: "4 weeks",
+        units: [
+          {
+            id: "unit-1",
+            title: "Unit 1",
+            description: "Unit 1 description",
+            order: 1,
+            lessons: [
+              {
+                id: "lesson-1",
+                title: "Lesson 1",
+                content: "Lesson 1 content",
+                order: 1
+              },
+              {
+                id: "lesson-2",
+                title: "Lesson 2",
+                content: "Lesson 2 content",
+                order: 2
+              }
+            ]
+          },
+          {
+            id: "unit-2",
+            title: "Unit 2",
+            description: "Unit 2 description",
+            order: 2,
+            lessons: [
+              {
+                id: "lesson-3",
+                title: "Lesson 3",
+                content: "Lesson 3 content",
+                order: 1
+              },
+              {
+                id: "lesson-4",
+                title: "Lesson 4",
+                content: "Lesson 4 content",
+                order: 2
+              }
+            ]
+          }
+        ]
+      };
+
+      setCourse(sampleCourse);
+    } catch (error) {
+      console.error('Error loading course:', error);
+      router.push('/instructor/courses');
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Update course details
-      const { error: courseError } = await supabase
-        .from('courses')
-        .update({
-          title: course.title,
-          description: course.description,
-          duration: course.duration
-        })
-        .eq('id', params.courseId);
-
-      if (courseError) throw courseError;
-
-      // Update units and lessons
-      for (const unit of course.units) {
-        const { error: unitError } = await supabase
-          .from('units')
-          .upsert({
-            id: unit.id,
-            course_id: params.courseId,
-            title: unit.title,
-            description: unit.description,
-            order: unit.order
-          });
-
-        if (unitError) throw unitError;
-
-        for (const lesson of unit.lessons) {
-          const { error: lessonError } = await supabase
-            .from('lessons')
-            .upsert({
-              id: lesson.id,
-              unit_id: unit.id,
-              title: lesson.title,
-              content: lesson.content,
-              order: lesson.order
-            });
-
-          if (lessonError) throw lessonError;
-        }
-      }
-
+      // TODO: Replace with your database call
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
       router.push('/instructor/courses');
     } catch (error) {
       console.error('Error updating course:', error);
@@ -167,7 +170,8 @@ export default function EditCourse({ params }: { params: { courseId: string } })
 
   const removeUnit = async (unitId: string, index: number) => {
     if (!unitId.startsWith('new-')) {
-      await supabase.from('units').delete().eq('id', unitId);
+      // TODO: Replace with your database call
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
     }
     const newUnits = [...course.units];
     newUnits.splice(index, 1);
@@ -176,7 +180,8 @@ export default function EditCourse({ params }: { params: { courseId: string } })
 
   const removeLesson = async (lessonId: string, unitIndex: number, lessonIndex: number) => {
     if (!lessonId.startsWith('new-')) {
-      await supabase.from('lessons').delete().eq('id', lessonId);
+      // TODO: Replace with your database call
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
     }
     const newUnits = [...course.units];
     newUnits[unitIndex].lessons.splice(lessonIndex, 1);
@@ -199,7 +204,7 @@ export default function EditCourse({ params }: { params: { courseId: string } })
         <form onSubmit={handleSubmit}>
           <Card className="p-6 mb-8">
             <h1 className="text-2xl font-bold mb-6">Edit Course</h1>
-            
+
             <div className="space-y-4">
               <div>
                 <Label htmlFor="title">Course Title</Label>

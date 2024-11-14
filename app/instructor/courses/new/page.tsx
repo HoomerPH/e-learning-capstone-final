@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 
 export default function NewCourse() {
   const router = useRouter();
@@ -25,21 +24,9 @@ export default function NewCourse() {
     setIsLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { data, error } = await supabase
-        .from('courses')
-        .insert({
-          ...formData,
-          instructor_id: user.id
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      router.push(`/instructor/courses/${data.id}/edit`);
+      // TODO: Replace with your database call
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
+      router.push('/instructor/courses');
     } catch (error) {
       console.error('Error creating course:', error);
     } finally {

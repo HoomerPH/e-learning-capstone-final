@@ -12,7 +12,6 @@ import {
 import { BookOpen, MoreVertical, Plus, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,21 +44,30 @@ export default function InstructorCourses() {
 
   async function loadCourses() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from('courses')
-        .select(`
-          *,
-          students:user_progress(count(distinct(user_id))),
-          lessons:units(lessons(count))
-        `)
-        .eq('instructor_id', user.id);
-
-      if (error) throw error;
-
-      setCourses(data || []);
+      // TODO: Replace with your database call
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
+      
+      // Sample data
+      const sampleCourses: Course[] = [
+        {
+          id: '1',
+          title: 'Introduction to Computer Systems',
+          description: 'Learn the basics of computer systems',
+          students_count: 15,
+          lessons_count: 10,
+          completion_rate: 75
+        },
+        {
+          id: '2',
+          title: 'Advanced Hardware Troubleshooting',
+          description: 'Master hardware diagnostics and repairs',
+          students_count: 8,
+          lessons_count: 12,
+          completion_rate: 60
+        }
+      ];
+      
+      setCourses(sampleCourses);
     } catch (error) {
       console.error('Error loading courses:', error);
     } finally {
@@ -69,13 +77,8 @@ export default function InstructorCourses() {
 
   const handleDelete = async (courseId: string) => {
     try {
-      const { error } = await supabase
-        .from('courses')
-        .delete()
-        .eq('id', courseId);
-
-      if (error) throw error;
-
+      // TODO: Replace with your database call
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
       setCourses(courses.filter(course => course.id !== courseId));
       setCourseToDelete(null);
     } catch (error) {
@@ -173,7 +176,7 @@ export default function InstructorCourses() {
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the course
-              and all its content.
+              and all its data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
