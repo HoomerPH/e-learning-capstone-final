@@ -1,3 +1,5 @@
+"use client";
+
 import { Card } from "@/components/ui/card";
 import { BookOpen, Users, BarChart2 } from "lucide-react";
 

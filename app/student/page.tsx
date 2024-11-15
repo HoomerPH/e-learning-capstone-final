@@ -1,3 +1,5 @@
+"use client";
+
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -63,7 +65,7 @@ export default function StudentDashboard() {
           </div>
 
           <div className="grid gap-6">
-            {[
+            {[/* eslint-disable @typescript-eslint/no-unused-vars */
               {
                 title: "Introduction to Computer System Servicing",
                 progress: 75,
@@ -112,7 +114,7 @@ export default function StudentDashboard() {
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
           <div className="space-y-4">
-            {[
+            {[/* eslint-disable @typescript-eslint/no-unused-vars */
               "Completed lesson: Introduction to Computer Components",
               "Achieved 85% in Pre-Assessment",
               "Started new course: Install and Configure Computer Systems"

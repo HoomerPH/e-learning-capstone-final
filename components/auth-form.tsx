@@ -26,27 +26,34 @@ export function AuthForm({ defaultRole = 'student' }: AuthFormProps) {
     setLoading(true);
 
     try {
+      console.log('Attempting sign in for:', email); // Debug log
       const { data, error } = await signIn(email, password);
       
+      if (error) throw error;
       if (!data?.user) throw new Error('No user returned');
 
       const userRole = data.user.user_metadata?.role;
+      console.log('Sign in successful, user role:', userRole);
 
       // Verify role matches the selected tab
       if (userRole !== defaultRole) {
         throw new Error(`Invalid account type. Please use the ${userRole} login option.`);
       }
 
-      toast.success("Successfully signed in!");
-      
       // Get the redirect URL from the query params or use default
       const from = searchParams.get('from');
       const redirectUrl = from || 
         (userRole === 'instructor' ? routes.instructor.dashboard : routes.student.dashboard);
       
-      router.push(redirectUrl);
-      router.refresh();
+      console.log('Will redirect to:', redirectUrl);
+      toast.success("Successfully signed in!");
+
+      // Force a page reload to ensure cookies are properly set
+      if (typeof window !== 'undefined') {
+        window.location.href = redirectUrl;
+      }
     } catch (error: any) {
+      console.error('Sign in error:', error);
       toast.error(error.message || "Invalid login credentials");
     } finally {
       setLoading(false);
@@ -59,10 +66,10 @@ export function AuthForm({ defaultRole = 'student' }: AuthFormProps) {
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
+          placeholder="name@example.com"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
           required
         />
       </div>
@@ -70,29 +77,22 @@ export function AuthForm({ defaultRole = 'student' }: AuthFormProps) {
         <Label htmlFor="password">Password</Label>
         <Input
           id="password"
+          placeholder="••••••••"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter your password"
           required
         />
       </div>
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Signing in..." : "Sign In"}
+      <Button className="w-full" type="submit" disabled={loading}>
+        {loading ? "Signing in..." : "Sign in"}
       </Button>
-      <div className="text-sm text-center space-y-2">
-        <p className="text-muted-foreground">
-          Don't have an account?{" "}
-          <Link href={routes.auth.signUp} className="text-primary hover:underline">
-            Sign up
-          </Link>
-        </p>
-        <p className="text-muted-foreground">
-          <Link href={routes.auth.forgotPassword} className="text-primary hover:underline">
-            Forgot password?
-          </Link>
-        </p>
-      </div>
+      <p className="text-sm text-center text-muted-foreground">
+        Don't have an account?{" "}
+        <Link href={routes.auth.signUp} className="text-primary hover:underline">
+          Sign up
+        </Link>
+      </p>
     </form>
   );
 }

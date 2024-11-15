@@ -10,6 +10,13 @@ function matchesRoute(pathname: string, routes: string[]): boolean {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Debug log
+  console.log('Middleware - Path:', pathname);
+  console.log('Middleware - Cookies:', {
+    authToken: request.cookies.get('auth-token')?.value,
+    userRole: request.cookies.get('user-role')?.value,
+  });
+
   // Define route patterns
   const publicPaths = [
     routes.public.home,
@@ -33,8 +40,8 @@ export function middleware(request: NextRequest) {
   }
 
   // Get auth data from cookies
-  const authToken = request.cookies.get('auth-token');
-  const userRole = request.cookies.get('user-role')?.value as 'student' | 'instructor' | undefined;
+  const authToken = request.cookies.get('auth-token')?.value;
+  const userRole = request.cookies.get('user-role')?.value;
 
   // Handle auth routes
   if (matchesRoute(pathname, authPaths)) {
@@ -43,13 +50,15 @@ export function middleware(request: NextRequest) {
       const dashboardRoute = userRole === 'instructor' 
         ? routes.instructor.dashboard 
         : routes.student.dashboard;
+      console.log('Middleware - Redirecting to dashboard:', dashboardRoute);
       return NextResponse.redirect(new URL(dashboardRoute, request.url));
     }
     return NextResponse.next();
   }
 
-  // If no auth token, redirect to sign in
-  if (!authToken) {
+  // If no auth token or no user role, redirect to sign in
+  if (!authToken || !userRole) {
+    console.log('Middleware - No auth, redirecting to sign in');
     const signInUrl = new URL(routes.auth.signIn, request.url);
     signInUrl.searchParams.set('from', pathname);
     return NextResponse.redirect(signInUrl);
@@ -60,10 +69,12 @@ export function middleware(request: NextRequest) {
   const isStudentPath = pathname.startsWith('/student');
 
   if (isInstructorPath && userRole !== 'instructor') {
+    console.log('Middleware - Invalid instructor access, redirecting to student dashboard');
     return NextResponse.redirect(new URL(routes.student.dashboard, request.url));
   }
 
   if (isStudentPath && userRole !== 'student') {
+    console.log('Middleware - Invalid student access, redirecting to instructor dashboard');
     return NextResponse.redirect(new URL(routes.instructor.dashboard, request.url));
   }
 
